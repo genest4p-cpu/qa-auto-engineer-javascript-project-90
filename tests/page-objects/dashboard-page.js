@@ -1,6 +1,7 @@
 export class DashboardPage {
   constructor(page) {
     this.page = page
+    this.dashboardUrl = /#\/$/
     this.dashboardHeading = page.getByRole('heading', {
       name: 'Welcome to the administration',
     })

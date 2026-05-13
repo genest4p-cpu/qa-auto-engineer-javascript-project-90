@@ -1,4 +1,5 @@
 // @ts-check
+import process from 'node:process'
 import { defineConfig, devices } from '@playwright/test';
 
 /**

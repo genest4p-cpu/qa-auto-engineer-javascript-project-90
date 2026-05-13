@@ -1,35 +1,31 @@
-import { expect, test } from '@playwright/test'
-import { DashboardPage } from './page-objects/dashboard-page'
-import { LoginPage } from './page-objects/login-page'
+import { expect, test } from './fixtures/page-objects'
+import { loginAsAnyUser, openLoginPage } from './helpers/auth'
 
 test.describe('аутентификация и авторизация', () => {
   test('пользователь может войти в приложение с любыми данными', async ({
     page,
+    dashboardPage,
+    loginPage,
   }) => {
-    const loginPage = new LoginPage(page)
-    const dashboardPage = new DashboardPage(page)
+    await openLoginPage(page)
 
-    await loginPage.open()
-    await expect(page).toHaveURL(/#\/login$/)
+    await expect(page).toHaveURL(loginPage.loginUrl)
     await expect(loginPage.usernameInput).toBeVisible()
     await expect(loginPage.passwordInput).toBeVisible()
     await expect(loginPage.signInButton).toBeVisible()
     await loginPage.login('qa-user', 'any-password')
-    await expect(page).toHaveURL(/#\/$/)
+    await expect(page).toHaveURL(dashboardPage.dashboardUrl)
     await expect(dashboardPage.dashboardHeading).toBeVisible()
 
   })
 
-  test('пользователь может выйти из приложения', async ({ page }) => {
-    const loginPage = new LoginPage(page)
-    const dashboardPage = new DashboardPage(page)
+  test('пользователь может выйти из приложения', async ({ page, dashboardPage, loginPage }) => {
+    await loginAsAnyUser(page)
 
-    await loginPage.open()
-    await loginPage.login('qa-user', 'any-password')
-    await expect(page).toHaveURL(/#\/$/)
+    await expect(page).toHaveURL(dashboardPage.dashboardUrl)
     await expect(dashboardPage.dashboardHeading).toBeVisible()
     await dashboardPage.logout()
-    await expect(page).toHaveURL(/#\/login$/)
+    await expect(page).toHaveURL(loginPage.loginUrl)
     await expect(loginPage.usernameInput).toBeVisible()
     await expect(loginPage.passwordInput).toBeVisible()
     await expect(loginPage.signInButton).toBeVisible()

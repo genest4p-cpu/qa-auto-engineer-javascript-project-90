@@ -1,10 +1,11 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './fixtures/page-objects'
+import { openLoginPage } from './helpers/auth'
 
-test('приложение успешно отображается', async ({ page }) => {
-  await page.goto('/')
+test('приложение успешно отображается', async ({ page, loginPage }) => {
+  await openLoginPage(page)
 
-  await expect(page).toHaveURL(/#\/login$/)
-  await expect(page.getByRole('textbox', { name: 'Username' })).toBeVisible()
-  await expect(page.getByRole('textbox', { name: 'Password' })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible()
+  await expect(page).toHaveURL(loginPage.loginUrl)
+  await expect(loginPage.usernameInput).toBeVisible()
+  await expect(loginPage.passwordInput).toBeVisible()
+  await expect(loginPage.signInButton).toBeVisible()
 })

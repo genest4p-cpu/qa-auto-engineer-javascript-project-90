@@ -1,6 +1,7 @@
 export class LoginPage {
   constructor(page) {
     this.page = page
+    this.loginUrl = /#\/login$/
     this.usernameInput = page.getByRole('textbox', { name: 'Username' })
     this.passwordInput = page.getByRole('textbox', { name: 'Password' })
     this.signInButton = page.getByRole('button', { name: 'Sign in' })

@@ -1,6 +1,4 @@
-import { expect, test } from '@playwright/test'
-import { LoginPage } from './page-objects/login-page'
-import { UsersPage } from './page-objects/users-page'
+import { expect, test } from './fixtures/auth-page-objects'
 
 const initialUsers = [
   { email: 'john@google.com', firstName: 'John', lastName: 'Doe' },
@@ -14,17 +12,10 @@ const initialUsers = [
 ]
 
 test.describe('пользователи', () => {
-  test.beforeEach(async ({ page }) => {
-    const loginPage = new LoginPage(page)
-
-    await loginPage.open()
-    await loginPage.login('qa-user', 'any-password')
-  })
-
   test('форма создания пользователя отображается и сохраняет введенные данные', async ({
     page,
+    usersPage,
   }) => {
-    const usersPage = new UsersPage(page)
     const newUser = {
       email: 'newuser@example.com',
       firstName: 'New',
@@ -33,7 +24,7 @@ test.describe('пользователи', () => {
 
     await usersPage.openCreateForm()
 
-    await expect(page.getByRole('heading', { name: 'Create User' })).toBeVisible()
+    await expect(usersPage.createHeading).toBeVisible()
     await expect(usersPage.emailInput).toBeVisible()
     await expect(usersPage.firstNameInput).toBeVisible()
     await expect(usersPage.lastNameInput).toBeVisible()
@@ -44,8 +35,8 @@ test.describe('пользователи', () => {
 
     await usersPage.save()
 
-    await expect(page).toHaveURL(/#\/users\/\d+$/)
-    await expect(page.getByRole('heading', { name: `User ${newUser.email}` })).toBeVisible()
+    await expect(page).toHaveURL(usersPage.detailsUrl)
+    await expect(usersPage.detailsHeading(newUser.email)).toBeVisible()
     await expect(usersPage.emailInput).toHaveValue(newUser.email)
     await expect(usersPage.firstNameInput).toHaveValue(newUser.firstName)
     await expect(usersPage.lastNameInput).toHaveValue(newUser.lastName)
@@ -53,14 +44,12 @@ test.describe('пользователи', () => {
   })
 
   test('список пользователей отображается полностью и содержит основную информацию', async ({
-    page,
+    usersPage,
   }) => {
-    const usersPage = new UsersPage(page)
-
     await usersPage.openList()
 
-    await expect(page.getByRole('heading', { name: 'Users' })).toBeVisible()
-    await expect(page.getByText('1-8 of 8')).toBeVisible()
+    await expect(usersPage.listHeading).toBeVisible()
+    await expect(usersPage.paginationSummary('1-8 of 8')).toBeVisible()
 
     for (const user of initialUsers) {
       await expect(usersPage.rowByEmail(user.email)).toContainText(user.email)
@@ -71,12 +60,11 @@ test.describe('пользователи', () => {
 
   test('форма редактирования пользователя отображается и сохраняет изменения', async ({
     page,
+    usersPage,
   }) => {
-    const usersPage = new UsersPage(page)
-
     await usersPage.openEditForm(1)
 
-    await expect(page.getByRole('heading', { name: 'User john@google.com' })).toBeVisible()
+    await expect(usersPage.detailsHeading('john@google.com')).toBeVisible()
     await expect(usersPage.emailInput).toHaveValue('john@google.com')
     await expect(usersPage.firstNameInput).toHaveValue('John')
     await expect(usersPage.lastNameInput).toHaveValue('Doe')
@@ -88,16 +76,15 @@ test.describe('пользователи', () => {
     })
     await usersPage.save()
 
-    await expect(page).toHaveURL(/#\/users$/)
-    await expect(page.getByRole('heading', { name: 'Users' })).toBeVisible()
+    await expect(page).toHaveURL(usersPage.listUrl)
+    await expect(usersPage.listHeading).toBeVisible()
     await expect(usersPage.updatedAlert).toBeVisible()
   })
 
   test('редактирование пользователя валидирует формат электронной почты', async ({
     page,
+    usersPage,
   }) => {
-    const usersPage = new UsersPage(page)
-
     await usersPage.openEditForm(1)
     await usersPage.fillUserForm({
       email: 'invalid-email',
@@ -108,40 +95,36 @@ test.describe('пользователи', () => {
     await usersPage.forceSave()
 
     await expect(page).toHaveURL(/#\/users\/1$/)
-    await expect(page.getByText('Incorrect email format')).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'User john@google.com' })).toBeVisible()
+    await expect(usersPage.invalidEmailError).toBeVisible()
+    await expect(usersPage.detailsHeading('john@google.com')).toBeVisible()
   })
 
-  test('можно удалить выбранных пользователей', async ({ page }) => {
-    const usersPage = new UsersPage(page)
-
+  test('можно удалить выбранных пользователей', async ({ usersPage }) => {
     await usersPage.openList()
-    await expect(page.getByText('1-8 of 8')).toBeVisible()
+    await expect(usersPage.paginationSummary('1-8 of 8')).toBeVisible()
     await usersPage.selectUserByEmail('john@google.com')
     await usersPage.selectUserByEmail('jack@yahoo.com')
 
-    await expect(page.getByText('2 items selected')).toBeVisible()
+    await expect(usersPage.selectedItemsCount(2)).toBeVisible()
 
     await usersPage.deleteSelectedUsers()
 
     await expect(usersPage.rowByEmail('john@google.com')).toHaveCount(0)
     await expect(usersPage.rowByEmail('jack@yahoo.com')).toHaveCount(0)
-    await expect(page.getByText('1-6 of 6')).toBeVisible()
+    await expect(usersPage.paginationSummary('1-6 of 6')).toBeVisible()
   })
 
-  test('можно выделить всех пользователей и удалить их массово', async ({ page }) => {
-    const usersPage = new UsersPage(page)
-
+  test('можно выделить всех пользователей и удалить их массово', async ({ usersPage }) => {
     await usersPage.openList()
     await usersPage.selectAllUsers()
 
-    await expect(page.getByText('8 items selected')).toBeVisible()
+    await expect(usersPage.selectedItemsCount(8)).toBeVisible()
     await expect(usersPage.selectAllCheckbox).toBeChecked()
 
     await usersPage.deleteSelectedUsers()
 
-    await expect(page.getByText('No Users yet.')).toBeVisible()
-    await expect(page.getByText('Do you want to add one?')).toBeVisible()
-    await expect(page.getByRole('row', { name: /@/ })).toHaveCount(0)
+    await expect(usersPage.emptyStateTitle).toBeVisible()
+    await expect(usersPage.emptyStateDescription).toBeVisible()
+    await expect(usersPage.rowsMatching(/@/)).toHaveCount(0)
   })
 })
