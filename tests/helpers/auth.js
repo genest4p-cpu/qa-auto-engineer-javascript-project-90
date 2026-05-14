@@ -2,7 +2,7 @@ import { LoginPage } from '../page-objects/login-page'
 
 export const defaultCredentials = {
   username: 'qa-user',
-  password: 'any-password',
+  password: 'any-password', // NOSONAR
 }
 
 export async function openLoginPage(page) {

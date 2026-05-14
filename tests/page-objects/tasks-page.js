@@ -1,36 +1,25 @@
+import { BasePage } from './base-page'
+
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 const taskStatuses = ['Draft', 'To Review', 'To Be Fixed', 'To Publish', 'Published']
 
-export class TasksPage {
+export class TasksPage extends BasePage {
   constructor(page) {
-    this.page = page
-    this.listUrl = /#\/tasks$/
-    this.detailsUrl = /#\/tasks\/\d+$/
-    this.createHeading = page.getByRole('heading', { name: 'Create Task' })
-    this.listHeading = page.getByRole('heading', { name: 'Tasks' })
-    this.createLink = page.getByRole('link', { name: 'Create' })
-    this.saveButton = page.getByRole('button', { name: 'Save' })
+    super(page, {
+      basePath: 'tasks',
+      entityName: 'Task',
+      listHeadingName: 'Tasks',
+      createHeadingName: 'Create Task',
+      emptyTitle: '',
+      emptyDescription: '',
+    })
     this.deleteButton = page.getByRole('button', { name: 'Delete' })
     this.assigneeCombobox = page.getByRole('combobox', { name: /Assignee/ })
     this.titleInput = page.getByRole('textbox', { name: 'Title' })
     this.contentInput = page.getByRole('textbox', { name: 'Content' })
     this.statusCombobox = page.getByRole('combobox', { name: /Status/ })
     this.labelCombobox = page.getByRole('combobox', { name: /Label/ })
-    this.createdAlert = page.getByRole('alert').filter({ hasText: 'Element created' })
-    this.updatedAlert = page.getByRole('alert').filter({ hasText: 'Element updated' })
     this.deletedAlert = page.getByRole('alert').filter({ hasText: 'Element deleted' })
-  }
-
-  async openList() {
-    await this.page.goto('/#/tasks')
-  }
-
-  async openCreateForm() {
-    await this.page.goto('/#/tasks/create')
-  }
-
-  async openEditForm(id) {
-    await this.page.goto(`/#/tasks/${id}`)
   }
 
   columnByStatus(statusName) {
@@ -45,10 +34,6 @@ export class TasksPage {
 
   cardByTitle(title) {
     return this.page.getByRole('button', { name: new RegExp(`^${escapeRegex(title)}\\b`) })
-  }
-
-  detailsHeading(title) {
-    return this.page.getByRole('heading', { name: `Task ${title}` })
   }
 
   statusHeading(statusName) {
@@ -70,26 +55,18 @@ export class TasksPage {
     if (assignee) {
       await this.selectComboboxOption(this.assigneeCombobox, assignee)
     }
-
     if (title !== undefined) {
       await this.titleInput.fill(title)
     }
-
     if (content !== undefined) {
       await this.contentInput.fill(content)
     }
-
     if (status) {
       await this.selectComboboxOption(this.statusCombobox, status)
     }
-
     if (label) {
       await this.selectComboboxOption(this.labelCombobox, label)
     }
-  }
-
-  async save() {
-    await this.saveButton.click()
   }
 
   async deleteTask() {
