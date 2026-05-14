@@ -10,14 +10,11 @@ test.describe('метки', () => {
     const newLabel = { name: 'qa-label' }
 
     await labelsPage.openCreateForm()
-
     await expect(labelsPage.createHeading).toBeVisible()
     await expect(labelsPage.nameInput).toBeVisible()
     await expect(labelsPage.saveButton).toBeDisabled()
-
     await labelsPage.fillLabelForm(newLabel)
     await expect(labelsPage.saveButton).toBeEnabled()
-
     await labelsPage.save()
 
     await expect(page).toHaveURL(labelsPage.detailsUrl)
@@ -30,7 +27,6 @@ test.describe('метки', () => {
     labelsPage,
   }) => {
     await labelsPage.openList()
-
     await expect(labelsPage.listHeading).toBeVisible()
     await expect(labelsPage.paginationSummary('1-5 of 5')).toBeVisible()
 
@@ -44,10 +40,8 @@ test.describe('метки', () => {
     labelsPage,
   }) => {
     await labelsPage.openEditForm(1)
-
     await expect(labelsPage.detailsHeading('bug')).toBeVisible()
     await expect(labelsPage.nameInput).toHaveValue('bug')
-
     await labelsPage.fillLabelForm({ name: 'bugfix' })
     await labelsPage.save()
 
@@ -61,9 +55,7 @@ test.describe('метки', () => {
     await expect(labelsPage.paginationSummary('1-5 of 5')).toBeVisible()
     await labelsPage.selectLabelByName('bug')
     await labelsPage.selectLabelByName('feature')
-
     await expect(labelsPage.selectedItemsCount(2)).toBeVisible()
-
     await labelsPage.deleteSelectedLabels()
 
     await expect(labelsPage.rowByName('bug')).toHaveCount(0)
@@ -74,10 +66,8 @@ test.describe('метки', () => {
   test('можно выделить все метки и удалить их массово', async ({ labelsPage }) => {
     await labelsPage.openList()
     await labelsPage.selectAllLabels()
-
     await expect(labelsPage.selectedItemsCount(5)).toBeVisible()
     await expect(labelsPage.selectAllCheckbox).toBeChecked()
-
     await labelsPage.deleteSelectedLabels()
 
     await expect(labelsPage.emptyStateTitle).toBeVisible()

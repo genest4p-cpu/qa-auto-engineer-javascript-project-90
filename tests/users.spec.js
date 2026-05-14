@@ -23,16 +23,13 @@ test.describe('пользователи', () => {
     }
 
     await usersPage.openCreateForm()
-
     await expect(usersPage.createHeading).toBeVisible()
     await expect(usersPage.emailInput).toBeVisible()
     await expect(usersPage.firstNameInput).toBeVisible()
     await expect(usersPage.lastNameInput).toBeVisible()
     await expect(usersPage.saveButton).toBeDisabled()
-
     await usersPage.fillUserForm(newUser)
     await expect(usersPage.saveButton).toBeEnabled()
-
     await usersPage.save()
 
     await expect(page).toHaveURL(usersPage.detailsUrl)
@@ -47,7 +44,6 @@ test.describe('пользователи', () => {
     usersPage,
   }) => {
     await usersPage.openList()
-
     await expect(usersPage.listHeading).toBeVisible()
     await expect(usersPage.paginationSummary('1-8 of 8')).toBeVisible()
 
@@ -104,9 +100,7 @@ test.describe('пользователи', () => {
     await expect(usersPage.paginationSummary('1-8 of 8')).toBeVisible()
     await usersPage.selectUserByEmail('john@google.com')
     await usersPage.selectUserByEmail('jack@yahoo.com')
-
     await expect(usersPage.selectedItemsCount(2)).toBeVisible()
-
     await usersPage.deleteSelectedUsers()
 
     await expect(usersPage.rowByEmail('john@google.com')).toHaveCount(0)
@@ -117,10 +111,8 @@ test.describe('пользователи', () => {
   test('можно выделить всех пользователей и удалить их массово', async ({ usersPage }) => {
     await usersPage.openList()
     await usersPage.selectAllUsers()
-
     await expect(usersPage.selectedItemsCount(8)).toBeVisible()
     await expect(usersPage.selectAllCheckbox).toBeChecked()
-
     await usersPage.deleteSelectedUsers()
 
     await expect(usersPage.emptyStateTitle).toBeVisible()

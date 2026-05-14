@@ -10,7 +10,6 @@ test.describe('задачи', () => {
     }
 
     await tasksPage.openCreateForm()
-
     await expect(tasksPage.createHeading).toBeVisible()
     await expect(tasksPage.assigneeCombobox).toBeVisible()
     await expect(tasksPage.titleInput).toBeVisible()
@@ -18,10 +17,8 @@ test.describe('задачи', () => {
     await expect(tasksPage.statusCombobox).toBeVisible()
     await expect(tasksPage.labelCombobox).toBeVisible()
     await expect(tasksPage.saveButton).toBeDisabled()
-
     await tasksPage.fillTaskForm(newTask)
     await expect(tasksPage.saveButton).toBeEnabled()
-
     await tasksPage.save()
 
     await expect(page).toHaveURL(tasksPage.detailsUrl)
@@ -51,7 +48,6 @@ test.describe('задачи', () => {
 
   test('форма редактирования задачи отображается и сохраняет изменения', async ({ page, tasksPage }) => {
     await tasksPage.openEditForm(1)
-
     await expect(tasksPage.detailsHeading('Task 1')).toBeVisible()
     await expect(tasksPage.titleInput).toHaveValue('Task 1')
     await expect(tasksPage.contentInput).toHaveValue('Description of task 1')
@@ -71,15 +67,12 @@ test.describe('задачи', () => {
 
   test('можно удалить задачу', async ({ page, tasksPage }) => {
     await tasksPage.openEditForm(1)
-
     await expect(tasksPage.detailsHeading('Task 1')).toBeVisible()
-
     await tasksPage.deleteTask()
-
     await expect(page).toHaveURL(tasksPage.listUrl)
     await expect(tasksPage.deletedAlert).toBeVisible()
-
     await tasksPage.openList()
+
     await expect(tasksPage.cardByTitle('Task 1')).toHaveCount(0)
   })
 
@@ -98,12 +91,9 @@ test.describe('задачи', () => {
   test('можно перемещать задачу между колонками канбан-доски', async ({ tasksPage }) => {
     await tasksPage.openList()
     await expect(tasksPage.cardInColumn('Draft', 'Task 11')).toBeVisible()
-
     await tasksPage.dragTaskToColumn('Task 11', 'To Review')
-
     await expect(tasksPage.cardInColumn('Draft', 'Task 11')).toHaveCount(0)
     await expect(tasksPage.cardInColumn('To Review', 'Task 11')).toBeVisible()
-
     await tasksPage.openEditForm(11)
     await expect(tasksPage.statusCombobox).toContainText('To Review')
   })
